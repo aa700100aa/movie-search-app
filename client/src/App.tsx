@@ -1,48 +1,42 @@
+import { useEffect, useState } from 'react';
+import { fetchMovies, Movie, fetchGenres, Genre } from './api';
 import styles from './App.module.css';
-import { useState } from 'react';
-
-type Movie = {
-  id: number;
-  title: string;
-  poster_path: string;
-  release_date: string;
-  genres: string[];
-};
-
-const dummyMovies: Movie[] = [
-  {
-    id: 1,
-    title: '仮の映画1',
-    poster_path: 'https://via.placeholder.com/300x450?text=Movie+1',
-    release_date: '2023-05-01',
-    genres: ['アクション', 'ドラマ'],
-  },
-  {
-    id: 2,
-    title: '仮の映画2',
-    poster_path: 'https://via.placeholder.com/300x450?text=Movie+2',
-    release_date: '2022-11-15',
-    genres: ['アニメ', 'ファンタジー'],
-  },
-  {
-    id: 3,
-    title: '仮の映画3',
-    poster_path: 'https://via.placeholder.com/300x450?text=Movie+3',
-    release_date: '2024-02-03',
-    genres: ['コメディ'],
-  },
-  {
-    id: 4,
-    title: '仮の映画4',
-    poster_path: 'https://via.placeholder.com/300x450?text=Movie+4',
-    release_date: '2020-08-20',
-    genres: ['ホラー', 'スリラー'],
-  },
-];
 
 const App = () => {
   const [keyword, setKeyword] = useState('');
   const [year, setYear] = useState('');
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [genres, setGenres] = useState<Genre[]>([]);
+
+  useEffect(() => {
+    if (!keyword) return;
+
+    const loadMovies = async () => {
+      try {
+        setError(null);
+        const data = await fetchMovies(keyword, year);
+        setMovies(data.results);
+      } catch (err) {
+        console.error(err);
+        setError('映画の取得に失敗しました');
+      }
+    };
+
+    loadMovies();
+  }, [keyword, year]);
+
+  useEffect(() => {
+    fetchGenres()
+      .then(setGenres)
+      .catch(() => console.error('ジャンルの取得に失敗しました'));
+  }, []);
+
+  const getGenreNames = (ids: number[]) => {
+    return ids
+      .map((id) => genres.find((g) => g.id === id)?.name)
+      .filter((name): name is string => !!name);
+  };
 
   return (
     <main style={{ padding: '1rem', maxWidth: 800, margin: '0 auto' }}>
@@ -81,17 +75,29 @@ const App = () => {
       </form>
 
       {!keyword && <p style={{ marginTop: '2rem' }}>キーワードを入力してください。</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {movies.length === 0 && keyword && !error && (
+        <p style={{ marginTop: '2rem' }}>該当する映画が見つかりませんでした。</p>
+      )}
 
       <div className={styles.movieGrid}>
-        {dummyMovies.map((movie) => (
+        {movies.map((movie) => (
           <div key={movie.id} className={styles.movieCard}>
-            <img src={movie.poster_path} alt={movie.title} className={styles.moviePoster} />
+            <img
+              src={
+                movie.poster_path
+                  ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+                  : 'https://via.placeholder.com/300x450?text=No+Image'
+              }
+              alt={movie.title}
+              className={styles.moviePoster}
+            />
             <h3 className={styles.movieTitle}>{movie.title}</h3>
             <p className={styles.movieDate}>{movie.release_date}</p>
             <div>
-              {movie.genres.map((genre) => (
-                <span key={genre} className={styles.genreBadge}>
-                  {genre}
+              {getGenreNames(movie.genre_ids).map((name) => (
+                <span key={name} className={styles.genreBadge}>
+                  {name}
                 </span>
               ))}
             </div>

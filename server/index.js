@@ -35,3 +35,19 @@ app.get('/api/movies', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Express server listening on http://localhost:${PORT}`);
 });
+
+app.get('/api/genres', async (req, res) => {
+  try {
+    const response = await axios.get('https://api.themoviedb.org/3/genre/movie/list', {
+      params: {
+        api_key: process.env.TMDB_API_KEY,
+        language: 'ja-JP',
+      },
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('TMDb Genre API Error:', error.message);
+    res.status(500).json({ error: 'ジャンル取得に失敗しました' });
+  }
+});
