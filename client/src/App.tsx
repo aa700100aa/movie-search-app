@@ -1,7 +1,6 @@
 import styles from './App.module.css';
 import { useState } from 'react';
 
-// ✅ JSXの外に出す
 type Movie = {
   id: number;
   title: string;
