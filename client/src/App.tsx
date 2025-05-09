@@ -8,15 +8,28 @@ const App = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [genres, setGenres] = useState<Genre[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
 
   useEffect(() => {
-    if (!keyword) return;
+    if (!keyword) {
+      setMovies([]);
+      setHasMore(false);
+      return;
+    }
 
     const loadMovies = async () => {
       try {
         setError(null);
-        const data = await fetchMovies(keyword, year);
-        setMovies(data.results);
+        const data = await fetchMovies(keyword, year, page);
+
+        if (page === 1) {
+          setMovies(data.results);
+        } else {
+          setMovies((prev) => [...prev, ...data.results]);
+        }
+
+        setHasMore(data.page < data.total_pages);
       } catch (err) {
         console.error(err);
         setError('映画の取得に失敗しました');
@@ -24,13 +37,17 @@ const App = () => {
     };
 
     loadMovies();
-  }, [keyword, year]);
+  }, [keyword, year, page]);
 
   useEffect(() => {
     fetchGenres()
       .then(setGenres)
       .catch(() => console.error('ジャンルの取得に失敗しました'));
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [keyword, year]);
 
   const getGenreNames = (ids: number[]) => {
     return ids
@@ -104,6 +121,20 @@ const App = () => {
           </div>
         ))}
       </div>
+      {hasMore && (
+        <button
+          onClick={() => setPage((prev) => prev + 1)}
+          style={{
+            margin: '2rem auto',
+            display: 'block',
+            padding: '0.75rem 1.5rem',
+            fontSize: '1rem',
+            cursor: 'pointer',
+          }}
+        >
+          もっと見る
+        </button>
+      )}
     </main>
   );
 };
