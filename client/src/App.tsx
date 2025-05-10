@@ -106,7 +106,8 @@ const App = () => {
       .catch(() => console.error('ジャンルの取得に失敗しました'));
   }, []);
 
-  const getGenreNames = (ids: number[]) => {
+  const getGenreNames = (ids: number[] | undefined): string[] => {
+    if (!Array.isArray(ids)) return [];
     return ids
       .map((id) => genres.find((g) => g.id === id)?.name)
       .filter((name): name is string => !!name);
