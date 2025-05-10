@@ -11,11 +11,16 @@ const App = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [lastFetchedPage, setLastFetchedPage] = useState(0);
-  //前回表示した20件を保持しておく
+  //前回表示した20件を保持しておく変数
   const [displayedMovieIds, setDisplayedMovieIds] = useState<number[]>([]);
+  //キーワードまたはリリース年が変更された際、全ての状態のリセットを待ってから
+  //検索を発火させるためのトリガー
+  const [searchTrigger, setSearchTrigger] = useState(0);
 
   useEffect(() => {
     if (!keyword) return;
+
+    let cancelled = false; // 🔧 キャンセル用フラグ
 
     const loadMovies = async () => {
       try {
@@ -25,7 +30,7 @@ const App = () => {
         let keepFetching = true;
         let lastData = null;
 
-        while (keepFetching) {
+        while (keepFetching && !cancelled) {
           const data = await fetchMovies(keyword, '', currentPage);
           lastData = data;
 
@@ -44,19 +49,30 @@ const App = () => {
           }
         }
 
-        const sliced = allFiltered.slice(0, 20);
-        setMovies((prev) => (page === 1 ? sliced : [...prev, ...sliced]));
-        setDisplayedMovieIds(sliced.map((movie) => movie.id));
-        setHasMore(lastData && currentPage <= lastData.total_pages);
-        setLastFetchedPage(currentPage - 1);
+        if (!cancelled) {
+          const sliced = allFiltered.slice(0, 20);
+          setMovies((prev) => (page === 1 ? sliced : [...prev, ...sliced]));
+          setDisplayedMovieIds(sliced.map((movie) => movie.id));
+          const hasMoreData =
+            lastData && currentPage <= lastData.total_pages && sliced.length === 20;
+          setHasMore(hasMoreData);
+          setLastFetchedPage(currentPage - 1);
+        }
       } catch (err) {
-        console.error(err);
-        setError('映画の取得に失敗しました');
+        if (!cancelled) {
+          console.error(err);
+          setError('映画の取得に失敗しました');
+        }
       }
     };
 
     loadMovies();
-  }, [page, keyword, year]);
+
+    // 🔁 キャンセル処理：次の useEffect 実行前にこれが呼ばれる
+    return () => {
+      cancelled = true;
+    };
+  }, [searchTrigger, page]);
 
   useEffect(() => {
     if (!keyword) {
@@ -67,12 +83,15 @@ const App = () => {
       return;
     }
 
-    // 🔄 状態リセット
+    // 🔁 状態リセット → 検索準備完了後にトリガーだけ更新
     setMovies([]);
     setHasMore(false);
     setLastFetchedPage(0);
     setDisplayedMovieIds([]);
-    setPage(1); // 🔥 最後にセットすることで下の useEffect が発火
+    setPage(1);
+
+    // ✅ 最後にトリガーを変更（検索用 useEffect が走る）
+    setSearchTrigger((prev) => prev + 1);
   }, [keyword, year]);
 
   useEffect(() => {
