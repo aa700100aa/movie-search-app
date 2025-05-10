@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchMovies, Movie, fetchGenres, Genre } from './api';
 import styles from './App.module.css';
+import { Helmet } from 'react-helmet-async';
 
 const App = () => {
   const [keyword, setKeyword] = useState('');
@@ -107,71 +108,85 @@ const App = () => {
   };
 
   return (
-    <main className={styles.main}>
-      <h1>映画検索</h1>
+    <>
+      <Helmet>
+        {console.log('Helmet rendering with keyword:', keyword)}
+        <title>
+          {keyword
+            ? `「${keyword}」${year ? `（${year}年）` : ''} の検索結果 - 映画検索アプリ`
+            : '映画検索アプリ'}
+        </title>
+      </Helmet>
+      <main className={styles.main}>
+        <h1>映画検索</h1>
 
-      <form onSubmit={(e) => e.preventDefault()} className={styles.form}>
-        <label>
-          キーワード：
-          <input
-            type="text"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder="例: 君の名は"
-            className={styles.input}
-          />
-        </label>
-
-        <label>
-          リリース年：
-          <select value={year} onChange={(e) => setYear(e.target.value)} className={styles.select}>
-            <option value="">選択してください</option>
-            <option value="2024">2024</option>
-            <option value="2023">2023</option>
-            <option value="2022">2022</option>
-            <option value="2021">2021</option>
-            <option value="2020">2020</option>
-          </select>
-        </label>
-      </form>
-
-      {!keyword && <p className={styles.message}>キーワードを入力してください。</p>}
-      {error && <p className={styles.error}>{error}</p>}
-      {movies.length === 0 && keyword && !error && (
-        <p className={styles.message}>該当する映画が見つかりませんでした。</p>
-      )}
-
-      <div className={styles.movieGrid}>
-        {movies.map((movie) => (
-          <div key={movie.id} className={styles.movieCard}>
-            <img
-              src={
-                movie.poster_path
-                  ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
-                  : 'https://via.placeholder.com/300x450?text=No+Image'
-              }
-              alt={movie.title}
-              className={styles.moviePoster}
+        <form onSubmit={(e) => e.preventDefault()} className={styles.form}>
+          <label>
+            キーワード：
+            <input
+              type="text"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="例: 君の名は"
+              className={styles.input}
             />
-            <h3 className={styles.movieTitle}>{movie.title}</h3>
-            <p className={styles.movieDate}>{movie.release_date}</p>
-            <div>
-              {getGenreNames(movie.genre_ids).map((name) => (
-                <span key={name} className={styles.genreBadge}>
-                  {name}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+          </label>
 
-      {hasMore && (
-        <button onClick={() => setPage((prev) => prev + 1)} className={styles.loadMore}>
-          もっと見る
-        </button>
-      )}
-    </main>
+          <label>
+            リリース年：
+            <select
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              className={styles.select}
+            >
+              <option value="">選択してください</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+            </select>
+          </label>
+        </form>
+
+        {!keyword && <p className={styles.message}>キーワードを入力してください。</p>}
+        {error && <p className={styles.error}>{error}</p>}
+        {movies.length === 0 && keyword && !error && (
+          <p className={styles.message}>該当する映画が見つかりませんでした。</p>
+        )}
+
+        <div className={styles.movieGrid}>
+          {movies.map((movie) => (
+            <div key={movie.id} className={styles.movieCard}>
+              <img
+                src={
+                  movie.poster_path
+                    ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+                    : 'https://via.placeholder.com/300x450?text=No+Image'
+                }
+                alt={movie.title}
+                className={styles.moviePoster}
+              />
+              <h3 className={styles.movieTitle}>{movie.title}</h3>
+              <p className={styles.movieDate}>{movie.release_date}</p>
+              <div>
+                {getGenreNames(movie.genre_ids).map((name) => (
+                  <span key={name} className={styles.genreBadge}>
+                    {name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {hasMore && (
+          <button onClick={() => setPage((prev) => prev + 1)} className={styles.loadMore}>
+            もっと見る
+          </button>
+        )}
+      </main>
+    </>
   );
 };
 
