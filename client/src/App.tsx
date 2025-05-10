@@ -10,26 +10,45 @@ const App = () => {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [lastFetchedPage, setLastFetchedPage] = useState(0);
+  //前回表示した20件を保持しておく
+  const [displayedMovieIds, setDisplayedMovieIds] = useState<number[]>([]);
 
   useEffect(() => {
-    if (!keyword) {
-      setMovies([]);
-      setHasMore(false);
-      return;
-    }
+    if (!keyword) return;
 
     const loadMovies = async () => {
       try {
         setError(null);
-        const data = await fetchMovies(keyword, year, page);
+        let allFiltered: Movie[] = [];
+        let currentPage = lastFetchedPage + 1;
+        let keepFetching = true;
+        let lastData = null;
 
-        if (page === 1) {
-          setMovies(data.results);
-        } else {
-          setMovies((prev) => [...prev, ...data.results]);
+        while (keepFetching) {
+          const data = await fetchMovies(keyword, '', currentPage);
+          lastData = data;
+
+          const filtered = year
+            ? data.results.filter((movie) => movie.release_date?.startsWith(year))
+            : data.results;
+
+          const newFiltered = filtered.filter((movie) => !displayedMovieIds.includes(movie.id));
+
+          allFiltered = [...allFiltered, ...newFiltered];
+
+          if (allFiltered.length >= 20 || currentPage >= data.total_pages) {
+            keepFetching = false;
+          } else {
+            currentPage++;
+          }
         }
 
-        setHasMore(data.page < data.total_pages);
+        const sliced = allFiltered.slice(0, 20);
+        setMovies((prev) => (page === 1 ? sliced : [...prev, ...sliced]));
+        setDisplayedMovieIds(sliced.map((movie) => movie.id));
+        setHasMore(lastData && currentPage <= lastData.total_pages);
+        setLastFetchedPage(currentPage - 1);
       } catch (err) {
         console.error(err);
         setError('映画の取得に失敗しました');
@@ -37,17 +56,30 @@ const App = () => {
     };
 
     loadMovies();
-  }, [keyword, year, page]);
+  }, [page, keyword, year]);
+
+  useEffect(() => {
+    if (!keyword) {
+      setMovies([]);
+      setHasMore(false);
+      setLastFetchedPage(0);
+      setDisplayedMovieIds([]);
+      return;
+    }
+
+    // 🔄 状態リセット
+    setMovies([]);
+    setHasMore(false);
+    setLastFetchedPage(0);
+    setDisplayedMovieIds([]);
+    setPage(1); // 🔥 最後にセットすることで下の useEffect が発火
+  }, [keyword, year]);
 
   useEffect(() => {
     fetchGenres()
       .then(setGenres)
       .catch(() => console.error('ジャンルの取得に失敗しました'));
   }, []);
-
-  useEffect(() => {
-    setPage(1);
-  }, [keyword, year]);
 
   const getGenreNames = (ids: number[]) => {
     return ids
