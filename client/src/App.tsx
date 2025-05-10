@@ -56,13 +56,10 @@ const App = () => {
   };
 
   return (
-    <main style={{ padding: '1rem', maxWidth: 800, margin: '0 auto' }}>
+    <main className={styles.main}>
       <h1>映画検索</h1>
 
-      <form
-        onSubmit={(e) => e.preventDefault()}
-        style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
-      >
+      <form onSubmit={(e) => e.preventDefault()} className={styles.form}>
         <label>
           キーワード：
           <input
@@ -70,17 +67,13 @@ const App = () => {
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="例: 君の名は"
-            style={{ width: '100%', padding: '0.5rem' }}
+            className={styles.input}
           />
         </label>
 
         <label>
           リリース年：
-          <select
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            style={{ width: '100%', padding: '0.5rem' }}
-          >
+          <select value={year} onChange={(e) => setYear(e.target.value)} className={styles.select}>
             <option value="">選択してください</option>
             <option value="2024">2024</option>
             <option value="2023">2023</option>
@@ -91,10 +84,10 @@ const App = () => {
         </label>
       </form>
 
-      {!keyword && <p style={{ marginTop: '2rem' }}>キーワードを入力してください。</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {!keyword && <p className={styles.message}>キーワードを入力してください。</p>}
+      {error && <p className={styles.error}>{error}</p>}
       {movies.length === 0 && keyword && !error && (
-        <p style={{ marginTop: '2rem' }}>該当する映画が見つかりませんでした。</p>
+        <p className={styles.message}>該当する映画が見つかりませんでした。</p>
       )}
 
       <div className={styles.movieGrid}>
@@ -121,17 +114,9 @@ const App = () => {
           </div>
         ))}
       </div>
+
       {hasMore && (
-        <button
-          onClick={() => setPage((prev) => prev + 1)}
-          style={{
-            margin: '2rem auto',
-            display: 'block',
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            cursor: 'pointer',
-          }}
-        >
+        <button onClick={() => setPage((prev) => prev + 1)} className={styles.loadMore}>
           もっと見る
         </button>
       )}
