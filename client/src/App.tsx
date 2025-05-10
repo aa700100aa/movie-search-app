@@ -156,7 +156,9 @@ const App = () => {
           </label>
         </form>
 
-        {!keyword && <p className={styles.message}>キーワードを入力してください。</p>}
+        {!keyword && (
+          <p className={styles.message}>キーワードを入力すると検索結果が表示されます。</p>
+        )}
         {error && <p className={styles.error}>{error}</p>}
         {!loading && movies.length === 0 && keyword && !error && (
           <p className={styles.message}>該当する映画が見つかりませんでした。</p>
