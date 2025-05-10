@@ -176,7 +176,7 @@ const App = () => {
                 alt={movie.title}
                 className={styles.moviePoster}
               />
-              <h3 className={styles.movieTitle}>{movie.title}</h3>
+              <h2 className={styles.movieTitle}>{movie.title}</h2>
               <p className={styles.movieDate}>{movie.release_date}</p>
               <div>
                 {getGenreNames(movie.genre_ids).map((name) => (
