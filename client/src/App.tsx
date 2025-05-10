@@ -126,8 +126,8 @@ const App = () => {
         <h1>映画検索</h1>
 
         <form onSubmit={(e) => e.preventDefault()} className={styles.form}>
-          <label>
-            キーワード：
+          <label className={styles.label}>
+            キーワード
             <input
               type="text"
               value={keyword}
@@ -137,20 +137,22 @@ const App = () => {
             />
           </label>
 
-          <label>
-            リリース年：
-            <select
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              className={styles.select}
-            >
-              <option value="">選択してください</option>
-              <option value="2024">2024</option>
-              <option value="2023">2023</option>
-              <option value="2022">2022</option>
-              <option value="2021">2021</option>
-              <option value="2020">2020</option>
-            </select>
+          <label className={styles.label}>
+            リリース年
+            <div className={styles.selectWrapper}>
+              <select
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                className={styles.select}
+              >
+                <option value="">選択してください</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
+              </select>
+            </div>
           </label>
         </form>
 
