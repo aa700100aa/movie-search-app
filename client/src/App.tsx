@@ -167,15 +167,17 @@ const App = () => {
         <div className={styles.movieGrid}>
           {movies.map((movie) => (
             <div key={movie.id} className={styles.movieCard}>
-              <img
-                src={
-                  movie.poster_path
-                    ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
-                    : 'https://via.placeholder.com/300x450?text=No+Image'
-                }
-                alt={movie.title}
-                className={styles.moviePoster}
-              />
+              <div className={styles.moviePosterWrap}>
+                {movie.poster_path ? (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+                    alt={movie.title}
+                    className={styles.moviePoster}
+                  />
+                ) : (
+                  <div className={styles.noImage}>no-image</div>
+                )}
+              </div>
               <h2 className={styles.movieTitle}>{movie.title}</h2>
               <p className={styles.movieDate}>{movie.release_date}</p>
               <div>

@@ -187,13 +187,41 @@ select:focus {
   padding: 1rem;
   background: #fff;
 }
-
-.moviePoster {
-  width: 100%;
-  height: auto;
-  margin-bottom: 0.5rem;
+.moviePosterWrap {
+  position: relative;
 }
-
+.moviePoster,
+.noImage {
+  object-fit: cover;
+  object-position: center;
+  margin-bottom: 0.5rem;
+  display: block;
+  width: 100%;
+  height: 51vw;
+}
+@media (min-width: 768px) {
+  .moviePoster,
+  .noImage {
+    height: 300px;
+  }
+}
+@media (min-width: 960px) {
+  .moviePoster,
+  .noImage {
+    height: 27vw;
+    max-height: 300px;
+  }
+}
+.noImage {
+  background-color: #f0f0f0;
+  color: #666;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-style: italic;
+}
 .movieTitle {
   font-size: 0.95rem;
   font-weight: bold;
