@@ -121,6 +121,8 @@ select:focus {
 
 .error {
   color: red;
+  margin-top: 2rem;
+  font-size: 0.8rem;
 }
 
 .spinner {
