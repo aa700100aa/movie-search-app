@@ -17,6 +17,8 @@ const App = () => {
   //キーワードまたはリリース年が変更された際、全ての状態のリセットを待ってから
   //検索を発火させるためのトリガー
   const [searchTrigger, setSearchTrigger] = useState(0);
+  //ローディング状態を監視
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!keyword) return;
@@ -24,6 +26,7 @@ const App = () => {
     let cancelled = false; // 🔧 キャンセル用フラグ
 
     const loadMovies = async () => {
+      setLoading(true);
       try {
         setError(null);
         let allFiltered: Movie[] = [];
@@ -64,6 +67,8 @@ const App = () => {
           console.error(err);
           setError('映画の取得に失敗しました');
         }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     };
 
@@ -151,7 +156,7 @@ const App = () => {
 
         {!keyword && <p className={styles.message}>キーワードを入力してください。</p>}
         {error && <p className={styles.error}>{error}</p>}
-        {movies.length === 0 && keyword && !error && (
+        {!loading && movies.length === 0 && keyword && !error && (
           <p className={styles.message}>該当する映画が見つかりませんでした。</p>
         )}
 
@@ -180,7 +185,9 @@ const App = () => {
           ))}
         </div>
 
-        {hasMore && (
+        {loading && <div className={styles.spinner}></div>}
+
+        {!loading && hasMore && (
           <button onClick={() => setPage((prev) => prev + 1)} className={styles.loadMore}>
             もっと見る
           </button>
