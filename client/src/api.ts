@@ -1,3 +1,5 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export type Movie = {
   id: number;
   title: string;
@@ -23,7 +25,7 @@ export const fetchMovies = async (
   if (year) params.append('year', year);
   params.append('page', page.toString());
 
-  const url = `http://localhost:3001/api/movies?${params.toString()}`;
+  const url = `${API_BASE_URL}/movies?${params.toString()}`;
   console.log('📡 fetchMovies URL:', url); // ← 追加
   const res = await fetch(url);
 
@@ -42,7 +44,7 @@ export type Genre = {
 };
 
 export const fetchGenres = async (): Promise<Genre[]> => {
-  const res = await fetch('http://localhost:3001/api/genres');
+  const res = await fetch(`${API_BASE_URL}/genres`);
   if (!res.ok) throw new Error('ジャンルの取得に失敗しました');
   return (await res.json()).genres;
 };
