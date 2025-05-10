@@ -23,8 +23,16 @@ export const fetchMovies = async (
   if (year) params.append('year', year);
   params.append('page', page.toString());
 
-  const res = await fetch(`http://localhost:3001/api/movies?${params.toString()}`);
-  if (!res.ok) throw new Error('検索に失敗しました');
+  const url = `http://localhost:3001/api/movies?${params.toString()}`;
+  console.log('📡 fetchMovies URL:', url); // ← 追加
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('❌ fetchMovies failed response:', text);
+    throw new Error('検索に失敗しました');
+  }
+
   return await res.json();
 };
 
