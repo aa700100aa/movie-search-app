@@ -15,6 +15,7 @@ export type MovieResponse = {
   total_results: number;
 };
 
+//検索条件に応じた映画情報取得処理
 export const fetchMovies = async (
   keyword: string,
   year: string,
@@ -26,7 +27,6 @@ export const fetchMovies = async (
   params.append('page', page.toString());
 
   const url = `${API_BASE_URL}/movies?${params.toString()}`;
-  console.log('📡 fetchMovies URL:', url); // ← 追加
   const res = await fetch(url);
 
   if (!res.ok) {
@@ -43,6 +43,7 @@ export type Genre = {
   name: string;
 };
 
+//ジャンル取得処理
 export const fetchGenres = async (): Promise<Genre[]> => {
   const res = await fetch(`${API_BASE_URL}/genres`);
   if (!res.ok) throw new Error('ジャンルの取得に失敗しました');

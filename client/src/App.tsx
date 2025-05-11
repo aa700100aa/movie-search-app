@@ -4,15 +4,23 @@ import styles from './App.module.css';
 import { Helmet } from 'react-helmet-async';
 
 const App = () => {
+  //検索キーワード
   const [keyword, setKeyword] = useState('');
+  //リリース年
   const [year, setYear] = useState('');
+  //検索条件をもとに取得する映画情報
   const [movies, setMovies] = useState<Movie[]>([]);
+  //エラー管理
   const [error, setError] = useState<string | null>(null);
+  //映画ジャンルを管理
   const [genres, setGenres] = useState<Genre[]>([]);
+  //表示するページ数
   const [page, setPage] = useState(1);
+  //もっと見るボタンを表示非表示を管理
   const [hasMore, setHasMore] = useState(false);
+  //最後に取得したページ数
   const [lastFetchedPage, setLastFetchedPage] = useState(0);
-  //前回表示した20件を保持しておく変数
+  //最後に表示した20件を保持しておく変数
   const [displayedMovieIds, setDisplayedMovieIds] = useState<number[]>([]);
   //キーワードまたはリリース年が変更された際、全ての状態のリセットを待ってから
   //検索を発火させるためのトリガー
@@ -23,10 +31,13 @@ const App = () => {
   useEffect(() => {
     if (!keyword) return;
 
-    let cancelled = false; // 🔧 キャンセル用フラグ
+    let cancelled = false;
 
+    //映画情報取得処理
     const loadMovies = async () => {
+      //状態をローディング中に変更
       setLoading(true);
+
       try {
         setError(null);
         let allFiltered: Movie[] = [];
@@ -38,14 +49,17 @@ const App = () => {
           const data = await fetchMovies(keyword, '', currentPage);
           lastData = data;
 
+          //リリース年の指定があれば、取得したデータから該当する映画のみを抽出
           const filtered = year
             ? data.results.filter((movie) => movie.release_date?.startsWith(year))
             : data.results;
 
+          //最後に表示した20件に存在する映画情報だった場合は除外
           const newFiltered = filtered.filter((movie) => !displayedMovieIds.includes(movie.id));
-
+          //表示する映画を配列に追加
           allFiltered = [...allFiltered, ...newFiltered];
 
+          // 20件取得 または 最後のページまで検索し終わる まで処理を継続
           if (allFiltered.length >= 20 || currentPage >= data.total_pages) {
             keepFetching = false;
           } else {
@@ -54,12 +68,16 @@ const App = () => {
         }
 
         if (!cancelled) {
+          // 表示する映画情報をセット
           const sliced = allFiltered.slice(0, 20);
           setMovies((prev) => (page === 1 ? sliced : [...prev, ...sliced]));
+          // 今回の20件の映画情報を保持。次の20件を表示する場合に重複を削除するために使用する。
           setDisplayedMovieIds(sliced.map((movie) => movie.id));
+          // もっと見るボタンの表示非表示を判定
           const hasMoreData =
             lastData && currentPage <= lastData.total_pages && sliced.length === 20;
           setHasMore(hasMoreData);
+          // 次の20件を表示する際に最後に表示したページ内から処理を走らせるためマイナス1
           setLastFetchedPage(currentPage - 1);
         }
       } catch (err) {
@@ -68,19 +86,20 @@ const App = () => {
           setError('映画の取得に失敗しました');
         }
       } finally {
+        //ローディング終了
         if (!cancelled) setLoading(false);
       }
     };
-
     loadMovies();
 
-    // 🔁 キャンセル処理：次の useEffect 実行前にこれが呼ばれる
+    // キャンセル処理：次の検索処理実行前にこれが呼ばれる
     return () => {
       cancelled = true;
     };
   }, [searchTrigger, page]);
 
   useEffect(() => {
+    //キーワードが空ならリセット
     if (!keyword) {
       setMovies([]);
       setHasMore(false);
@@ -89,23 +108,25 @@ const App = () => {
       return;
     }
 
-    // 🔁 状態リセット → 検索準備完了後にトリガーだけ更新
+    // キーワード、リリース年が更新されたならリセット
     setMovies([]);
     setHasMore(false);
     setLastFetchedPage(0);
     setDisplayedMovieIds([]);
     setPage(1);
 
-    // ✅ 最後にトリガーを変更（検索用 useEffect が走る）
+    // 最後にトリガーを変更（映画情報取得処理が走る）
     setSearchTrigger((prev) => prev + 1);
   }, [keyword, year]);
 
+  //ジャンル取得
   useEffect(() => {
     fetchGenres()
       .then(setGenres)
       .catch(() => console.error('ジャンルの取得に失敗しました'));
   }, []);
 
+  // ジャンルのIDから映画名を取得
   const getGenreNames = (ids: number[] | undefined): string[] => {
     if (!Array.isArray(ids)) return [];
     return ids
