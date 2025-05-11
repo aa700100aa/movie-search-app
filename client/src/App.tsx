@@ -137,7 +137,6 @@ const App = () => {
   return (
     <>
       <Helmet>
-        {console.log('Helmet rendering with keyword:', keyword)}
         <title>
           {keyword
             ? `「${keyword}」${year ? `（${year}年）` : ''} の検索結果 - 映画検索アプリ`
@@ -145,27 +144,27 @@ const App = () => {
         </title>
       </Helmet>
       <main className={styles.main}>
-        <h1>映画検索</h1>
+        <h1 className={styles.title}>映画検索</h1>
 
-        <form onSubmit={(e) => e.preventDefault()} className={styles.form}>
-          <label className={styles.label}>
+        <form onSubmit={(e) => e.preventDefault()} className={styles.search}>
+          <label className={styles.searchLabel}>
             キーワード
             <input
               type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              placeholder="例: 君の名は"
-              className={styles.input}
+              placeholder="例: 君の名は。"
+              className={styles.searchInput}
             />
           </label>
 
-          <label className={styles.label}>
+          <label className={styles.searchLabel}>
             リリース年
-            <div className={styles.selectWrapper}>
+            <div className={styles.searchInner}>
               <select
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
-                className={styles.select}
+                className={styles.searchSelect}
               >
                 <option value="">選択してください</option>
                 <option value="2024">2024</option>
@@ -179,14 +178,14 @@ const App = () => {
         </form>
 
         {!keyword && (
-          <p className={styles.message}>キーワードを入力すると検索結果が表示されます。</p>
+          <p className={styles.searchMessage}>キーワードを入力すると検索結果が表示されます。</p>
         )}
-        {error && <p className={styles.error}>{error}</p>}
+        {error && <p className={styles.searchError}>{error}</p>}
         {!loading && movies.length === 0 && keyword && !error && (
-          <p className={styles.message}>該当する映画が見つかりませんでした。</p>
+          <p className={styles.searchMessage}>該当する映画が見つかりませんでした。</p>
         )}
 
-        <div className={styles.movieGrid}>
+        <div className={styles.movie}>
           {movies.map((movie) => (
             <div key={movie.id} className={styles.movieCard}>
               <div className={styles.moviePosterWrap}>
@@ -197,14 +196,14 @@ const App = () => {
                     className={styles.moviePoster}
                   />
                 ) : (
-                  <div className={styles.noImage}>no-image</div>
+                  <div className={styles.movieNoImage}>no-image</div>
                 )}
               </div>
               <h2 className={styles.movieTitle}>{movie.title}</h2>
               <p className={styles.movieDate}>{movie.release_date}</p>
               <div>
                 {getGenreNames(movie.genre_ids).map((name) => (
-                  <span key={name} className={styles.genreBadge}>
+                  <span key={name} className={styles.movieGenre}>
                     {name}
                   </span>
                 ))}
@@ -213,10 +212,10 @@ const App = () => {
           ))}
         </div>
 
-        {loading && <div className={styles.spinner}></div>}
+        {loading && <div className={styles.movieLoading}></div>}
 
         {!loading && hasMore && (
-          <button onClick={() => setPage((prev) => prev + 1)} className={styles.loadMore}>
+          <button onClick={() => setPage((prev) => prev + 1)} className={styles.movieMore}>
             もっと見る
           </button>
         )}
