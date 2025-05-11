@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { fetchMovies, Movie, fetchGenres, Genre } from './api';
 import styles from './App.module.css';
 import { Helmet } from 'react-helmet-async';
+import { useRef } from 'react';
 
 const App = () => {
   //検索キーワード
   const [keyword, setKeyword] = useState('');
+  //最新のキーワードを監視
+  const keywordRef = useRef(keyword);
   //リリース年
   const [year, setYear] = useState('');
   //検索条件をもとに取得する映画情報
@@ -48,6 +51,8 @@ const App = () => {
         while (keepFetching && !cancelled) {
           const data = await fetchMovies(keyword, '', currentPage);
           lastData = data;
+
+          if (cancelled || keywordRef.current === '') return;
 
           //リリース年の指定があれば、取得したデータから該当する映画のみを抽出
           const filtered = year
@@ -100,7 +105,7 @@ const App = () => {
 
   useEffect(() => {
     //キーワードが空ならリセット
-    if (!keyword) {
+    if (keyword === '') {
       setMovies([]);
       setHasMore(false);
       setLastFetchedPage(0);
@@ -118,6 +123,11 @@ const App = () => {
     // 最後にトリガーを変更（映画情報取得処理が走る）
     setSearchTrigger((prev) => prev + 1);
   }, [keyword, year]);
+
+  //常に最新の検索ワードを取得
+  useEffect(() => {
+    keywordRef.current = keyword;
+  }, [keyword]);
 
   //ジャンル取得
   useEffect(() => {
