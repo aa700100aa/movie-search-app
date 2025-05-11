@@ -31,8 +31,6 @@ npm install
 npm start
 ```
 
-※ `cp` はファイルをコピーするUNIXコマンドです。Windowsでは `copy` を使ってください。
-
 ### クライアントのセットアップ
 
 ```bash
@@ -44,17 +42,21 @@ npm run dev
 
 ## ⚙️ 環境変数の設定例
 
-### server/.env.example
+### server/.env
 
 ```
 TMDB_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-### client/.env.example
+※環境変数はgitで管理していないため、各自で設定をお願いします。
+
+### client/.env
 
 ```
 VITE_API_BASE_URL=http://localhost:3001/api
 ```
+
+※環境変数はgitで管理していないため、各自で設定をお願いします。
 
 ## 📦 本番用ビルド
 
