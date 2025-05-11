@@ -3,6 +3,7 @@ import { tmdbGet } from '../utils/tmdbClient.js';
 
 const router = express.Router();
 
+//ジャンル取得処理
 router.get('/', async (req, res) => {
   try {
     const data = await tmdbGet('/genre/movie/list');

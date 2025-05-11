@@ -5,6 +5,7 @@ import axios from 'axios';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const API_KEY = process.env.TMDB_API_KEY;
 
+//TBDB API 取得処理
 export const tmdbGet = async (endpoint, params = {}) => {
   try {
     const response = await axios.get(`${TMDB_BASE_URL}${endpoint}`, {

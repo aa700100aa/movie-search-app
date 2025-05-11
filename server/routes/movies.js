@@ -3,6 +3,7 @@ import { tmdbGet } from '../utils/tmdbClient.js';
 
 const router = express.Router();
 
+//映画情報取得処理
 router.get('/', async (req, res) => {
   const { query, year, page = 1 } = req.query;
   try {
